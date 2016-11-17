@@ -18,7 +18,7 @@ SqlAlchemy Test Cache
      :alt: Updates
 
 
-A way to cache previous query in order to improve performance of complex tests.
+A tiny library to allow caching sql statements in order to improve performance of expensive tests
 
 
 * Free software: MIT license
