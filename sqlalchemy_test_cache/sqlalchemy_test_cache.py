@@ -2,6 +2,10 @@ from __future__ import unicode_literals, print_function
 
 import logging
 import operator
+try:
+    from functools import reduce
+except ImportError:
+    pass  # py2
 
 from .utils import render_value
 
@@ -18,10 +22,10 @@ class DumpManager(object):
         self.dbsession = dbsession
 
     def _get_table_columns(self, table):
-        return table.columns.values()
+        return list(table.columns.values())
 
     def _get_table_columns_name(self, table):
-        return table.columns.keys()
+        return list(table.columns.keys())
 
     def _get_table_rows(self, table):
         return self.dbsession.query(table)

@@ -10,17 +10,19 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    # TODO: put package requirements here
+    'SQLAlchemy==1.1.4',
 ]
 
 test_requirements = [
-    # TODO: put package test requirements here
+    'SQLAlchemy==1.1.4',
+    'mock==2.0.0',
+    'tox==2.5.0',
 ]
 
 setup(
     name='sqlalchemy_test_cache',
     version='0.1.0',
-    description="A way to cache previous query in order to improve performance of complex tests.", # noqa
+    description="A tiny library to allow caching sql statements in order to improve performance of expensive tests.", # noqa
     long_description=readme + '\n\n' + history,
     author="Geru",
     author_email='dev-oss@geru.com.br',
@@ -47,6 +49,6 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
-    test_suite='tests',
+    test_suite='tests.my_test_suite',
     tests_require=test_requirements
 )
