@@ -40,17 +40,6 @@ def create_tmp_file(content, name):
         os.unlink(_tempfile)
 
 
-class GenerateQueryLiteralCompilerTestCase(unittest.TestCase):
-
-    def test_ensure_compiler_uses_dialect_statement_compiler(self):
-
-        dialect = FakeDialect(statement_compiler=FakeStatementCompiler)
-
-        qlc = utils.generate_query_literal_compiler(dialect)
-
-        self.assertTrue(issubclass(qlc, FakeStatementCompiler))
-
-
 class GenerateValueLiteralCompilerTestCase(unittest.TestCase):
 
     def test_ensure_compiler_uses_dialect_statement_compiler(self):
@@ -75,7 +64,7 @@ class GenerateDumpPathTestCase(unittest.TestCase):
     def test_exception_when_basedir_is_not_none_but_use_tmp_is_true(self):
 
         with self.assertRaises(ValueError) as cm:
-            utils.generate_dump_path('ClassName', 123456789, use_tmp=True, basedir='/home/alexandre')
+            utils.generate_dump_path('ClassName', 123456789, use_tmp=True, basedir='/base/dir')
 
         exception = cm.exception
 

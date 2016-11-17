@@ -13,31 +13,6 @@ except NameError:
     basestring = str
 
 
-def generate_query_literal_compiler(dialect):
-
-    class QueryLiteralCompiler(dialect.statement_compiler):
-
-        def visit_bindparam(self, bindparam, within_columns_clause=False,
-                            literal_binds=False, **kwargs):
-            return self.render_literal_value(bindparam.value, bindparam.type)
-
-        def render_array_value(self, val, item_type):
-            if isinstance(val, list):
-                return "{%s}" % ",".join([self.render_array_value(x, item_type) for x in val])
-            return self.render_literal_value(val, item_type)
-
-        def render_literal_value(self, value, type_):
-            if isinstance(value, long):
-                return str(value)
-            elif isinstance(value, (basestring, date, datetime, timedelta)):
-                return "'%s'" % str(value).replace("'", "''")
-            elif isinstance(value, list):
-                return "'{%s}'" % (",".join([self.render_array_value(x, type_.item_type) for x in value]))
-            return super(QueryLiteralCompiler, self).render_literal_value(value, type_)
-
-    return QueryLiteralCompiler
-
-
 def generate_value_literal_compiler(dialect):
 
     class ValueLiteralCompiler(dialect.statement_compiler):
@@ -104,19 +79,6 @@ def load_dump_data_from_file(dump_file_path):
 def write_dump_data_to_file(dump_file_path, dump_data):
     with open(dump_file_path, 'w') as f:
         f.write(dump_data)
-
-
-def render_query(statement, dialect=None, reindent=True):
-
-    if isinstance(statement, Query):
-        if dialect is None:
-            dialect = statement.session.bind.dialect
-        statement = statement.statement
-
-    elif dialect is None:
-        dialect = statement.bind.dialect
-
-    return generate_query_literal_compiler(dialect)(dialect, statement).process(statement)
 
 
 def render_value(dialect, type_, value):
