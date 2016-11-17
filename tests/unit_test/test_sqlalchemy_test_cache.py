@@ -66,7 +66,7 @@ class DumpManagerTestCase(unittest.TestCase):
         # For this propose, the base model and dbsession should not be necessary
         dm = DumpManager(base_model=mock.Mock(), dbsession=mock.Mock())
 
-        self.assertListEqual(dm._get_table_columns(table), columns.values())
+        self.assertListEqual(dm._get_table_columns(table), list(columns.values()))
 
     def test_get_table_columns_name(self):
 
@@ -82,7 +82,7 @@ class DumpManagerTestCase(unittest.TestCase):
         # For this propose, the base model and dbsession should not be necessary
         dm = DumpManager(base_model=mock.Mock(), dbsession=mock.Mock())
 
-        self.assertListEqual(dm._get_table_columns_name(table), columns.keys())
+        self.assertListEqual(dm._get_table_columns_name(table), list(columns.keys()))
 
     def test_get_table_rows(self):
 
