@@ -10,7 +10,6 @@ Tests for `sqlalchemy_test_cache` module.
 
 import collections
 import datetime
-import itertools
 import json
 import unittest
 
