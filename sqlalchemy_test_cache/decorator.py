@@ -2,7 +2,7 @@ import logging
 import os
 
 from .sqlalchemy_test_cache import DumpManager
-from .utils import generate_dump_path
+from .utils import generate_dump_path, load_dump_data_from_file, write_dump_data_to_file
 
 
 logger = logging.getLogger(__name__)
@@ -23,8 +23,7 @@ def cache_sql(base_model, dbsession):
 
                 result = test_function(self, *args, **kwargs)
 
-                with open(path, 'w') as f:
-                    f.write('\n'.join(dm.dump_all_tables()))
+                write_dump_data_to_file(path, '\n'.join(dm.dump_all_tables()))
 
                 return result
 
@@ -32,8 +31,7 @@ def cache_sql(base_model, dbsession):
 
                 logger.info('Loading data from cache file: {!r}'.format(path))
 
-                with open(path, 'r') as f:
-                    dm.loads(f.readlines())
+                dm.loads(load_dump_data_from_file(path))
 
                 return
 

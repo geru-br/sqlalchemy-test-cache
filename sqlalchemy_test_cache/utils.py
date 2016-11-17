@@ -13,24 +13,9 @@ except NameError:
     basestring = str
 
 
-def generate_dump_path(class_name, class_id, use_tmp=True, basedir=None):
+def generate_query_literal_compiler(dialect):
 
-    if use_tmp:
-        basedir = tempfile.gettempdir()
-
-    return '{}/{}-{}.dump'.format(basedir, class_name, class_id)
-
-
-def render_query(statement, dialect=None, reindent=True):
-
-    if isinstance(statement, Query):
-        if dialect is None:
-            dialect = statement.session.bind.dialect
-        statement = statement.statement
-    elif dialect is None:
-        dialect = statement.bind.dialect
-
-    class LiteralCompiler(dialect.statement_compiler):
+    class QueryLiteralCompiler(dialect.statement_compiler):
 
         def visit_bindparam(self, bindparam, within_columns_clause=False,
                             literal_binds=False, **kwargs):
@@ -48,14 +33,14 @@ def render_query(statement, dialect=None, reindent=True):
                 return "'%s'" % str(value).replace("'", "''")
             elif isinstance(value, list):
                 return "'{%s}'" % (",".join([self.render_array_value(x, type_.item_type) for x in value]))
-            return super(LiteralCompiler, self).render_literal_value(value, type_)
+            return super(QueryLiteralCompiler, self).render_literal_value(value, type_)
 
-    return LiteralCompiler(dialect, statement).process(statement)
+    return QueryLiteralCompiler
 
 
-def render_value(dialect, type_, value):
+def generate_value_literal_compiler(dialect):
 
-    class LiteralCompiler(dialect.statement_compiler):
+    class ValueLiteralCompiler(dialect.statement_compiler):
 
         def visit_bindparam(self, bindparam, within_columns_clause=False,
                             literal_binds=False, **kwargs):
@@ -79,6 +64,60 @@ def render_value(dialect, type_, value):
             elif isinstance(value, dict):
                 return "'%s'" % json.dumps(value)
 
-            return super(LiteralCompiler, self).render_literal_value(value, type_)
+            return super(ValueLiteralCompiler, self).render_literal_value(value, type_)
 
-    return LiteralCompiler(dialect, None).render_literal_value(type_, value)
+    return ValueLiteralCompiler
+
+
+def generate_dump_path(class_name, class_id, use_tmp=True, basedir=None):
+
+    if basedir and use_tmp:
+        raise ValueError(
+            'To use the basedir {!r}, you must set the parameter {!r} as {!r}.'.format(
+                '/home/alexandre', 'use_tmp', False
+            )
+        )
+
+    if not use_tmp and not basedir:
+        raise ValueError('As the parameter {!r} is {!r}, you need to inform a basedir'.format(
+            'use_tmp', False
+        ))
+
+    return '{}/{}-{}.dump'.format(basedir or tempfile.gettempdir(), class_name, class_id)
+
+
+def load_dump_data_from_file(dump_file_path):
+
+    with open(dump_file_path) as f:
+
+        while True:
+
+            data = f.readline()
+
+            if not data:
+                break
+
+            else:
+                yield data
+
+
+def write_dump_data_to_file(dump_file_path, dump_data):
+    with open(dump_file_path, 'w') as f:
+        f.write(dump_data)
+
+
+def render_query(statement, dialect=None, reindent=True):
+
+    if isinstance(statement, Query):
+        if dialect is None:
+            dialect = statement.session.bind.dialect
+        statement = statement.statement
+
+    elif dialect is None:
+        dialect = statement.bind.dialect
+
+    return generate_query_literal_compiler(dialect)(dialect, statement).process(statement)
+
+
+def render_value(dialect, type_, value):
+    return generate_value_literal_compiler(dialect)(dialect, None).render_literal_value(type_, value)
