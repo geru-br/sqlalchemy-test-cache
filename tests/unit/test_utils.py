@@ -40,17 +40,6 @@ def create_tmp_file(content, name):
         os.unlink(_tempfile)
 
 
-class GenerateQueryLiteralCompilerTestCase(unittest.TestCase):
-
-    def test_ensure_compiler_uses_dialect_statement_compiler(self):
-
-        dialect = FakeDialect(statement_compiler=FakeStatementCompiler)
-
-        qlc = utils.generate_query_literal_compiler(dialect)
-
-        self.assertTrue(issubclass(qlc, FakeStatementCompiler))
-
-
 class GenerateValueLiteralCompilerTestCase(unittest.TestCase):
 
     def test_ensure_compiler_uses_dialect_statement_compiler(self):
