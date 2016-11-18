@@ -2,8 +2,16 @@
 SQLAlchemy Test Cache
 ===============================
 
+.. image:: https://img.shields.io/pypi/v/sqlalchemy-test-cache.svg
+        :target: https://pypi.python.org/pypi/sqlalchemy-test-cache
 
-.. :target: https://codeship.com/projects/18894dd0-61d9-0134-28f3-72a4f11d695c/status?branch=development
+.. image:: https://img.shields.io/travis/geru-br/sqlalchemy-test-cache.svg
+        :target: https://travis-ci.org/geru-br/sqlalchemy-test-cache
+
+.. image:: https://readthedocs.org/projects/sqlalchemy-test-cache/badge/?version=latest
+        :target: https://sqlalchemy-test-cache.readthedocs.io/en/latest/?badge=latest
+        :alt: Documentation Status
+
 
 A tiny library to allow caching sql statements in order to improve performance of expensive tests
 
