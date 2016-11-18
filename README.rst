@@ -3,20 +3,8 @@ SqlAlchemy Test Cache
 ===============================
 
 
-.. image:: https://img.shields.io/pypi/v/sqlalchemy_test_cache.svg
-        :target: https://pypi.python.org/pypi/sqlalchemy_test_cache
-
-.. image:: https://img.shields.io/travis/geru-br/sqlalchemy_test_cache.svg
-        :target: https://travis-ci.org/geru-br/sqlalchemy_test_cache
-
-.. image:: https://readthedocs.org/projects/sqlalchemy-test-cache/badge/?version=latest
-        :target: https://sqlalchemy-test-cache.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-.. image:: https://pyup.io/repos/github/geru-br/sqlalchemy_test_cache/shield.svg
-     :target: https://pyup.io/repos/github/geru-br/sqlalchemy_test_cache/
-     :alt: Updates
-
+.. image:: https://img.shields.io/codeship/d6c1ddd0-16a3-0132-5f85-2e35c05e22b1.svg?style=flat-square
+    :target: https://app.codeship.com/projects/18894dd0-61d9-0134-28f3-72a4f11d695c/status?branch=development
 
 A tiny library to allow caching sql statements in order to improve performance of expensive tests
 
@@ -30,11 +18,10 @@ Features
 
 * TODO
 
-Credits
----------
+Acknowledgements
+----------------
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
-
