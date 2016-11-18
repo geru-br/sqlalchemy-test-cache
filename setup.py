@@ -22,7 +22,8 @@ test_requirements = [
 setup(
     name='sqlalchemy_test_cache',
     version='0.1.0',
-    description="A tiny library to allow caching sql statements in order to improve performance of expensive tests.", # noqa
+    description=("A tiny library to allow caching sql statements in order to "
+                 "improve performance of expensive tests."),
     long_description=readme + '\n\n' + history,
     author="Geru",
     author_email='dev-oss@geru.com.br',
