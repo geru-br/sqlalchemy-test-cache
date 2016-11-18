@@ -27,7 +27,7 @@ FakeBaseModel = collections.namedtuple('FakeBaseModel', 'metadata')
 FakeColumn = collections.namedtuple('FakeColumn', 'type')
 
 
-def fake_render_value(value=None, dialect=None, type=None):
+def fake_render_value(value=None, dialect=None, type_=None):
 
     if isinstance(value, (datetime.date, datetime.datetime)):
         return repr(value.isoformat())
@@ -126,7 +126,7 @@ class DumpManagerTestCase(unittest.TestCase):
         self.assertEqual(render_value_patched.call_count, 4)
 
         for index, row_value in enumerate(row):
-            render_value_patched.assert_any_call(dialect=mock_dialect, type=columns[index].type, value=row_value)
+            render_value_patched.assert_any_call(dialect=mock_dialect, type_=columns[index].type, value=row_value)
 
     def test_build_insert_row(self):
 

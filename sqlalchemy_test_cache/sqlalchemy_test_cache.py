@@ -32,7 +32,7 @@ class DumpManager(object):
 
     def _dump_row_values(self, row, columns):
         return [
-            render_value(dialect=self.dbsession.bind.dialect, type=columns[i].type, value=value) for i, value in enumerate(row)
+            render_value(dialect=self.dbsession.bind.dialect, type_=columns[i].type, value=value) for i, value in enumerate(row)
         ]
 
     def _build_insert_row(self, table, row):

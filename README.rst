@@ -23,7 +23,8 @@ A tiny library to allow caching sql statements in order to improve performance o
 Features
 --------
 
-* TODO
+* It is simple to use (just a decorator).
+* It knows how to handle foreign key and others dependences.
 
 Acknowledgements
 ----------------
