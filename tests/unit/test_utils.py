@@ -17,7 +17,7 @@ import unittest
 try:
     from unittest import mock
 except ImportError:  # python2
-    import mock
+    import mock  # noqa
 
 from sqlalchemy_test_cache import utils
 
