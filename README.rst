@@ -13,7 +13,10 @@ SQLAlchemy Test Cache
         :alt: Documentation Status
 
 
-A tiny library to allow caching sql statements in order to improve performance of expensive tests
+**It's still unstable and very experimental. Every help is welcome.**
+
+
+A tiny library to allow caching sql statements in order to improve performance of expensive tests.
 
 
 * Free software: MIT license
