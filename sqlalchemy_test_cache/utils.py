@@ -4,13 +4,12 @@ import json
 import tempfile
 from datetime import date, timedelta, datetime
 
-from sqlalchemy.orm import Query
-
 
 try:
     basestring
 except NameError:
     basestring = str
+    long = int
 
 
 def generate_value_literal_compiler(dialect):

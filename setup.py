@@ -9,12 +9,9 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [
-    'SQLAlchemy==1.1.4',
-]
+requirements = []
 
 test_requirements = [
-    'SQLAlchemy==1.1.4',
     'mock==2.0.0',
     'tox==2.5.0',
 ]
