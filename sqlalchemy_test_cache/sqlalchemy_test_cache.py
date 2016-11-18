@@ -22,17 +22,17 @@ class DumpManager(object):
         self.dbsession = dbsession
 
     def _get_table_columns(self, table):
-        return list(table.columns.values())
+        return [column for column in table.columns.values()]
 
     def _get_table_columns_name(self, table):
-        return list(table.columns.keys())
+        return [column.name for column in self._get_table_columns(table)]
 
     def _get_table_rows(self, table):
         return self.dbsession.query(table)
 
     def _dump_row_values(self, row, columns):
         return [
-            render_value(dialect=self.dbsession.bind.dialect, type_=columns[i].type, value=value) for i, value in enumerate(row)
+            render_value(self.dbsession.bind.dialect, value, columns[i].type) for i, value in enumerate(row)
         ]
 
     def _build_insert_row(self, table, row):
@@ -60,12 +60,7 @@ class DumpManager(object):
 
     def loads(self, content):
 
-        logger.info('Loading {} lines from the dump file'.format(len(content)))
-
-        for index, line in enumerate(content, 1):
-
-            logger.info('Executing line {}/{}'.format(index, len(content)))
-
+        for line in content:
             self.dbsession.execute(line.strip())
 
         self.dbsession.flush()

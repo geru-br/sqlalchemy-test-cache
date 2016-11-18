@@ -24,10 +24,10 @@ from sqlalchemy_test_cache.sqlalchemy_test_cache import DumpManager
 
 FakeMetadata = collections.namedtuple('FakeMetadata', 'sorted_tables')
 FakeBaseModel = collections.namedtuple('FakeBaseModel', 'metadata')
-FakeColumn = collections.namedtuple('FakeColumn', 'type')
+FakeColumn = collections.namedtuple('FakeColumn', ('name', 'type'))
 
 
-def fake_render_value(value=None, dialect=None, type_=None):
+def fake_render_value(dialect=None, value=None, type_=None):
 
     if isinstance(value, (datetime.date, datetime.datetime)):
         return repr(value.isoformat())
@@ -54,12 +54,12 @@ class DumpManagerTestCase(unittest.TestCase):
 
     def test_get_table_columns(self):
 
-        columns = {
-            'colum1': 'colum1_str',
-            'colum2': 'colum2_int',
-            'colum3': 'colum3_date',
-            'colum4': 'colum4_bool',
-        }
+        columns = collections.OrderedDict((
+            ('column1', FakeColumn('colum1', str)),
+            ('column2', FakeColumn('colum2', int)),
+            ('column3', FakeColumn('colum3', datetime.date)),
+            ('column4', FakeColumn('colum4', bool)),
+        ))
 
         table = FakeTable(columns=columns)
 
@@ -70,19 +70,19 @@ class DumpManagerTestCase(unittest.TestCase):
 
     def test_get_table_columns_name(self):
 
-        columns = {
-            'colum1': 'colum1_str',
-            'colum2': 'colum2_int',
-            'colum3': 'colum3_date',
-            'colum4': 'colum4_bool',
-        }
+        columns = collections.OrderedDict((
+            ('column1', FakeColumn('colum1', str)),
+            ('column2', FakeColumn('colum2', int)),
+            ('column3', FakeColumn('colum3', datetime.date)),
+            ('column4', FakeColumn('colum4', bool)),
+        ))
 
         table = FakeTable(columns=columns)
 
         # For this propose, the base model and dbsession should not be necessary
         dm = DumpManager(base_model=mock.Mock(), dbsession=mock.Mock())
 
-        self.assertListEqual(dm._get_table_columns_name(table), list(columns.keys()))
+        self.assertListEqual(dm._get_table_columns_name(table), list(c.name for c in columns.values()))
 
     def test_get_table_rows(self):
 
@@ -108,7 +108,8 @@ class DumpManagerTestCase(unittest.TestCase):
         # TODO: Assert the return
 
         columns = [
-            FakeColumn(type=bool), FakeColumn(type=int), FakeColumn(type=datetime.date), FakeColumn(type=datetime.datetime)
+            FakeColumn('column1', type=bool), FakeColumn('column2', type=int),
+            FakeColumn('column3', type=datetime.date), FakeColumn('column4', type=datetime.datetime)
         ]
 
         row = True, 42, datetime.date.today(), datetime.datetime.now()
@@ -126,12 +127,12 @@ class DumpManagerTestCase(unittest.TestCase):
         self.assertEqual(render_value_patched.call_count, 4)
 
         for index, row_value in enumerate(row):
-            render_value_patched.assert_any_call(dialect=mock_dialect, type_=columns[index].type, value=row_value)
+            render_value_patched.assert_any_call(mock_dialect, row_value, columns[index].type)
 
     def test_build_insert_row(self):
 
         table = FakeTable(columns=collections.OrderedDict((
-            ('column1', FakeColumn(type=int)), ('column2', FakeColumn(type=datetime.date))
+            ('column1', FakeColumn('column1', type=int)), ('column2', FakeColumn('column2', type=datetime.date))
         )))
 
         row = 42, datetime.date.today()
@@ -170,9 +171,9 @@ class DumpManagerTestCase(unittest.TestCase):
         table = FakeTable(
             name='thespecialone',
             columns=collections.OrderedDict((
-                ('name', FakeColumn(type=str)),
-                ('age', FakeColumn(type=int)),
-                ('created', FakeColumn(type=datetime.datetime))
+                ('name', FakeColumn('name', str)),
+                ('age', FakeColumn('age', int)),
+                ('created', FakeColumn('created', datetime.datetime))
             ))
         )
 
@@ -203,7 +204,11 @@ class DumpManagerTestCase(unittest.TestCase):
         for row in rows:
 
             expected_result.append(
-                dm.INSERT_ROW_TEMPLATE.format(table, ', '.join(table.columns), ', '.join(map(fake_render_value, row)))
+                dm.INSERT_ROW_TEMPLATE.format(
+                    table,
+                    ', '.join(table.columns),
+                    ', '.join(fake_render_value(None, item, None) for item in row)
+                )
             )
 
         self.assertListEqual(result, expected_result)
@@ -213,27 +218,27 @@ class DumpManagerTestCase(unittest.TestCase):
         table1 = FakeTable(
             name='FakeTable1',
             columns=collections.OrderedDict((
-                ('name', FakeColumn(type=str)),
-                ('age', FakeColumn(type=int)),
-                ('created', FakeColumn(type=datetime.datetime))
+                ('name', FakeColumn('name', type=str)),
+                ('age', FakeColumn('age', type=int)),
+                ('created', FakeColumn('created', type=datetime.datetime))
             ))
         )
 
         table2 = FakeTable(
             name='FakeTable2',
             columns=collections.OrderedDict((
-                ('desc', FakeColumn(type=str)),
-                ('number', FakeColumn(type=int)),
-                ('started', FakeColumn(type=datetime.datetime))
+                ('desc', FakeColumn('desc', type=str)),
+                ('number', FakeColumn('number', type=int)),
+                ('started', FakeColumn('started', type=datetime.datetime))
             ))
         )
 
         table3 = FakeTable(
             name='FakeTable3',
             columns=collections.OrderedDict((
-                ('title', FakeColumn(type=str)),
-                ('users', FakeColumn(type=int)),
-                ('created', FakeColumn(type=datetime.datetime))
+                ('title', FakeColumn('title', type=str)),
+                ('users', FakeColumn('users', type=int)),
+                ('created', FakeColumn('created', type=datetime.datetime))
             ))
         )
 
@@ -257,7 +262,7 @@ class DumpManagerTestCase(unittest.TestCase):
 
                 dbsession_patched.query.side_effect = lambda table: rows[table.name]
 
-                result = dm.dump_all_tables()
+                dm.dump_all_tables()
 
         self.assertTrue(dbsession_patched.query.called)
 
@@ -272,20 +277,6 @@ class DumpManagerTestCase(unittest.TestCase):
                 dm.INSERT_ROW_TEMPLATE.format(
                     table,
                     ', '.join(table.columns),
-                    ', '.join(map(fake_render_value, rows[table.name][0]))  # index 0 because there is only one row per table
+                    ', '.join(fake_render_value(None, item, None) for item in rows[table.name][0])
                 )
             )
-
-        self.assertListEqual(result, expected_result)
-
-    def test_loads(self):
-
-        dm = DumpManager(base_model=None, dbsession=None)
-
-        with mock.patch.object(dm, 'dbsession') as dbsession_patched:
-
-            dm.loads(["INSERT INTO ..."])
-
-        self.assertTrue(dbsession_patched.execute.called)
-
-        dbsession_patched.execute.assert_called_once_with("INSERT INTO ...")
