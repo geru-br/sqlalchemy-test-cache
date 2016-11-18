@@ -4,7 +4,7 @@ SqlAlchemy Test Cache
 
 
 .. image:: https://img.shields.io/codeship/d6c1ddd0-16a3-0132-5f85-2e35c05e22b1.svg?style=flat-square
-    :target: https://app.codeship.com/projects/18894dd0-61d9-0134-28f3-72a4f11d695c/status?branch=development
+    :target: https://codeship.com/projects/18894dd0-61d9-0134-28f3-72a4f11d695c/status?branch=development
 
 A tiny library to allow caching sql statements in order to improve performance of expensive tests
 
