@@ -4,14 +4,6 @@ sqlalchemy_test_cache package
 Submodules
 ----------
 
-sqlalchemy_test_cache.cli module
---------------------------------
-
-.. automodule:: sqlalchemy_test_cache.cli
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 sqlalchemy_test_cache.decorator module
 --------------------------------------
 
