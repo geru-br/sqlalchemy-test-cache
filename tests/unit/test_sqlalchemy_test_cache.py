@@ -130,9 +130,9 @@ class DumpManagerTestCase(unittest.TestCase):
 
     def test_build_insert_row(self):
 
-        table = FakeTable(
-            columns=collections.OrderedDict(column1=FakeColumn(type=int), column2=FakeColumn(type=datetime.date))
-        )
+        table = FakeTable(columns=collections.OrderedDict((
+            ('column1', FakeColumn(type=int)), ('column2', FakeColumn(type=datetime.date))
+        )))
 
         row = 42, datetime.date.today()
 
@@ -142,6 +142,8 @@ class DumpManagerTestCase(unittest.TestCase):
             insert_row = dm._build_insert_row(table, row)
 
         self.assertTrue(dump_row_patched.called)
+
+        self.assertListEqual(dm._get_table_columns_name(table), ['column1', 'column2'])
 
         expected_insert_row = 'INSERT INTO "faketable" (column1, column2) VALUES ({}, {});'.format(row[0], row[1])
 
@@ -167,11 +169,11 @@ class DumpManagerTestCase(unittest.TestCase):
 
         table = FakeTable(
             name='thespecialone',
-            columns=collections.OrderedDict(
-                name=FakeColumn(type=str),
-                age=FakeColumn(type=int),
-                created=FakeColumn(type=datetime.datetime)
-            )
+            columns=collections.OrderedDict((
+                ('name', FakeColumn(type=str)),
+                ('age', FakeColumn(type=int)),
+                ('created', FakeColumn(type=datetime.datetime))
+            ))
         )
 
         row1 = 'Name1', 23, datetime.datetime.now()
@@ -210,29 +212,29 @@ class DumpManagerTestCase(unittest.TestCase):
 
         table1 = FakeTable(
             name='FakeTable1',
-            columns=collections.OrderedDict(
-                name=FakeColumn(type=str),
-                age=FakeColumn(type=int),
-                created=FakeColumn(type=datetime.datetime)
-            )
+            columns=collections.OrderedDict((
+                ('name', FakeColumn(type=str)),
+                ('age', FakeColumn(type=int)),
+                ('created', FakeColumn(type=datetime.datetime))
+            ))
         )
 
         table2 = FakeTable(
             name='FakeTable2',
-            columns=collections.OrderedDict(
-                desc=FakeColumn(type=str),
-                number=FakeColumn(type=int),
-                started=FakeColumn(type=datetime.datetime)
-            )
+            columns=collections.OrderedDict((
+                ('desc', FakeColumn(type=str)),
+                ('number', FakeColumn(type=int)),
+                ('started', FakeColumn(type=datetime.datetime))
+            ))
         )
 
         table3 = FakeTable(
             name='FakeTable3',
-            columns=collections.OrderedDict(
-                title=FakeColumn(type=str),
-                users=FakeColumn(type=int),
-                created=FakeColumn(type=datetime.datetime)
-            )
+            columns=collections.OrderedDict((
+                ('title', FakeColumn(type=str)),
+                ('users', FakeColumn(type=int)),
+                ('created', FakeColumn(type=datetime.datetime))
+            ))
         )
 
         rows = {
