@@ -23,7 +23,6 @@ setup(
                  "improve performance of expensive tests."),
     long_description=readme + '\n\n' + history,
     author="Geru",
-    author_email='dev-oss@geru.com.br',
     url='https://github.com/geru-br/sqlalchemy-test-cache',
     packages=[
         'sqlalchemy_test_cache',
