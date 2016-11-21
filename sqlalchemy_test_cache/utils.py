@@ -50,7 +50,7 @@ def generate_dump_path(class_name, class_id, use_tmp=True, basedir=None):
     if basedir and use_tmp:
         raise ValueError(
             'To use the basedir {!r}, you must set the parameter {!r} as {!r}.'.format(
-                '/home/alexandre', 'use_tmp', False
+                basedir, 'use_tmp', False
             )
         )
 

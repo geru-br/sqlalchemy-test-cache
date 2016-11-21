@@ -69,7 +69,7 @@ class GenerateDumpPathTestCase(unittest.TestCase):
         exception = cm.exception
 
         expected_message = 'To use the basedir {!r}, you must set the parameter {!r} as {!r}.'.format(
-            '/home/alexandre', 'use_tmp', False
+            '/base/dir', 'use_tmp', False
         )
 
         self.assertEqual(str(exception), expected_message)
