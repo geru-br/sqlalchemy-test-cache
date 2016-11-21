@@ -7,7 +7,6 @@ test_decorator
 
 Tests for `sqlalchemy_test_cache.decorator` module.
 """
-from __future__ import unicode_literals
 
 import unittest
 try:
