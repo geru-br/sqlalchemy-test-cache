@@ -7,6 +7,7 @@ test_sqlalchemy_test_cache
 
 Tests for `sqlalchemy_test_cache` module.
 """
+from __future__ import unicode_literals
 
 import collections
 import datetime
