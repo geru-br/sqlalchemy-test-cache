@@ -1,3 +1,4 @@
+import functools
 import logging
 import os
 
@@ -12,6 +13,7 @@ def cache_sql(base_model, dbsession):
 
     def wrapper(test_function):
 
+        @functools.wraps(test_function)
         def _wrapper(self, *args, **kwargs):
 
             path = generate_dump_path(self.__class__.__name__, id(self.__class__))
@@ -34,8 +36,6 @@ def cache_sql(base_model, dbsession):
                 dm.loads(load_dump_data_from_file(path))
 
                 return
-
-        _wrapper.__name__ = test_function.__name__
 
         return _wrapper
 
