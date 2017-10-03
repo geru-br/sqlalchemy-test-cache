@@ -28,7 +28,13 @@ class DumpManager(object):
         return [column.name for column in self._get_table_columns(table)]
 
     def _get_table_rows(self, table):
-        return self.dbsession.query(table)
+        table_columns_name = self._get_table_columns_name(table)
+        if 'created' in table_columns_name:
+            return self.dbsession.query(table).order_by(table.columns.created)
+        elif 'id' in table_columns_name:
+            return self.dbsession.query(table).order_by(table.columns.id)
+        else:
+            return self.dbsession.query(table)
 
     def _dump_row_values(self, row, columns):
         return [
