@@ -45,6 +45,16 @@ class FakeTable(object):
         return 'faketable'
 
 
+class FakeColumns(collections.OrderedDict):
+    @property
+    def created(self):
+        return 'created'
+
+    @property
+    def id(self):
+        return 'id'
+
+
 class DumpManagerTestCase(unittest.TestCase):
 
     def test_inser_row_template(self):
@@ -167,14 +177,14 @@ class DumpManagerTestCase(unittest.TestCase):
 
         self.assertListEqual(result, fake_base_model.metadata.sorted_tables)
 
-    def test_dump(self):
+    def test_dump_without_created_or_id(self):
 
         table = FakeTable(
             name='thespecialone',
             columns=collections.OrderedDict((
                 ('name', FakeColumn('name', str)),
                 ('age', FakeColumn('age', int)),
-                ('created', FakeColumn('created', datetime.datetime))
+                ('updated', FakeColumn('updated', datetime.datetime))
             ))
         )
 
@@ -214,14 +224,106 @@ class DumpManagerTestCase(unittest.TestCase):
 
         self.assertListEqual(result, expected_result)
 
-    def test_dump_all_tables(self):
+    def test_dump_with_created(self):
+
+        table = FakeTable(
+            name='thespecialone',
+            columns=FakeColumns((
+                ('name', FakeColumn('name', str)),
+                ('age', FakeColumn('age', int)),
+                ('created', FakeColumn('created', datetime.datetime))
+            ))
+        )
+
+        row1 = 'Name1', 23, datetime.datetime.now()
+        row2 = 'Name2', 24, datetime.datetime.now()
+        row3 = 'Name3', 25, datetime.datetime.now()
+        row4 = 'Name4', 26, datetime.datetime.now()
+        rows = row1, row2, row3, row4
+
+        dm = DumpManager(base_model=mock.Mock(), dbsession=mock.Mock())
+
+        with mock.patch('sqlalchemy_test_cache.sqlalchemy_test_cache.render_value') as mock_render_value:
+            mock_render_value.side_effect = fake_render_value
+
+            with mock.patch.object(dm, 'dbsession') as dbsession_patched:
+                patched_order_by = mock.MagicMock()
+                patched_order_by.order_by = mock.MagicMock(return_value=rows)
+                dbsession_patched.query.return_value = patched_order_by
+                result = dm.dump(table)
+
+        patched_order_by.order_by.assert_called_with('created')
+
+        self.assertTrue(mock_render_value.called)
+        self.assertEqual(mock_render_value.call_count, 12)  # 4 rows, 3 value per row.
+
+        expected_result = []
+
+        for row in rows:
+            expected_result.append(
+                dm.INSERT_ROW_TEMPLATE.format(
+                    table,
+                    ', '.join(table.columns),
+                    ', '.join(fake_render_value(None, item, None) for item in row)
+                )
+            )
+
+        self.assertListEqual(result, expected_result)
+
+    def test_dump_with_id(self):
+
+        table = FakeTable(
+            name='thespecialone',
+            columns=FakeColumns((
+                ('name', FakeColumn('name', str)),
+                ('age', FakeColumn('age', int)),
+                ('id', FakeColumn('id', int))
+            ))
+        )
+
+        row1 = 'Name1', 23, 1
+        row2 = 'Name2', 24, 2
+        row3 = 'Name3', 25, 3
+        row4 = 'Name4', 26, 4
+        rows = row1, row2, row3, row4
+
+        dm = DumpManager(base_model=mock.Mock(), dbsession=mock.Mock())
+
+        with mock.patch('sqlalchemy_test_cache.sqlalchemy_test_cache.render_value') as mock_render_value:
+            mock_render_value.side_effect = fake_render_value
+
+            with mock.patch.object(dm, 'dbsession') as dbsession_patched:
+                patched_order_by = mock.MagicMock()
+                patched_order_by.order_by = mock.MagicMock(return_value=rows)
+                dbsession_patched.query.return_value = patched_order_by
+                result = dm.dump(table)
+
+        patched_order_by.order_by.assert_called_with('id')
+
+        self.assertTrue(mock_render_value.called)
+        self.assertEqual(mock_render_value.call_count, 12)  # 4 rows, 3 value per row.
+
+        expected_result = []
+
+        for row in rows:
+            expected_result.append(
+                dm.INSERT_ROW_TEMPLATE.format(
+                    table,
+                    ', '.join(table.columns),
+                    ', '.join(fake_render_value(None, item, None) for item in row)
+                )
+            )
+
+        self.assertListEqual(result, expected_result)
+
+    def test_dump_all_tables_without_created_or_id(self):
 
         table1 = FakeTable(
             name='FakeTable1',
             columns=collections.OrderedDict((
                 ('name', FakeColumn('name', type=str)),
                 ('age', FakeColumn('age', type=int)),
-                ('created', FakeColumn('created', type=datetime.datetime))
+                ('updated', FakeColumn('updated', type=datetime.datetime))
             ))
         )
 
@@ -239,7 +341,7 @@ class DumpManagerTestCase(unittest.TestCase):
             columns=collections.OrderedDict((
                 ('title', FakeColumn('title', type=str)),
                 ('users', FakeColumn('users', type=int)),
-                ('created', FakeColumn('created', type=datetime.datetime))
+                ('updated', FakeColumn('updated', type=datetime.datetime))
             ))
         )
 
@@ -266,6 +368,76 @@ class DumpManagerTestCase(unittest.TestCase):
                 dm.dump_all_tables()
 
         self.assertTrue(dbsession_patched.query.called)
+
+        self.assertTrue(mock_render_value.called)
+        self.assertEqual(mock_render_value.call_count, 9)   # 3 tables, 1 row per table, 3 values per row.
+
+        expected_result = []
+
+        for table in tables:
+
+            expected_result.append(
+                dm.INSERT_ROW_TEMPLATE.format(
+                    table,
+                    ', '.join(table.columns),
+                    ', '.join(fake_render_value(None, item, None) for item in rows[table.name][0])
+                )
+            )
+
+    def test_dump_all_tables_with_created_and_id(self):
+
+        table1 = FakeTable(
+            name='FakeTable1',
+            columns=FakeColumns((
+                ('name', FakeColumn('name', type=str)),
+                ('age', FakeColumn('age', type=int)),
+                ('created', FakeColumn('created', type=datetime.datetime))
+            ))
+        )
+
+        table2 = FakeTable(
+            name='FakeTable2',
+            columns=FakeColumns((
+                ('desc', FakeColumn('desc', type=str)),
+                ('number', FakeColumn('number', type=int)),
+                ('created', FakeColumn('created', type=datetime.datetime))
+            ))
+        )
+
+        table3 = FakeTable(
+            name='FakeTable3',
+            columns=FakeColumns((
+                ('title', FakeColumn('title', type=str)),
+                ('users', FakeColumn('users', type=int)),
+                ('id', FakeColumn('id', type=int))
+            ))
+        )
+
+        rows = {
+            'FakeTable1': [('Name1', 42, datetime.datetime.now())],
+            'FakeTable2': [('New item', 100, datetime.datetime.now())],
+            'FakeTable3': [('The awesome potato', 9001, 1)]
+        }
+
+        tables = table1, table2, table3
+
+        fake_base_model = FakeBaseModel(metadata=FakeMetadata(sorted_tables=tables))
+
+        dm = DumpManager(base_model=fake_base_model, dbsession=None)
+
+        with mock.patch('sqlalchemy_test_cache.sqlalchemy_test_cache.render_value') as mock_render_value:
+
+            mock_render_value.side_effect = fake_render_value
+
+            with mock.patch.object(dm, 'dbsession') as dbsession_patched:
+
+                patched_order_by = mock.MagicMock()
+                patched_order_by.order_by = mock.MagicMock(side_effect=rows.values())
+                dbsession_patched.query.return_value = patched_order_by
+
+                dm.dump_all_tables()
+
+        patched_order_by.order_by.assert_has_calls([mock.call(u'created'), mock.call(u'created'), mock.call(u'id')])
 
         self.assertTrue(mock_render_value.called)
         self.assertEqual(mock_render_value.call_count, 9)   # 3 tables, 1 row per table, 3 values per row.
