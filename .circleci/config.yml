@@ -27,9 +27,8 @@ jobs:
           name: build and publish to geru-pypi
           command: |
             python setup.py sdist
-            virtualenv venv
-            ./venv/bin/pip install twine
-            ./venv/bin/twine upload --repository-url https://geru-pypi.geru.com.br/ dist/*
+            pip install twine
+            twine upload --repository-url https://geru-pypi.geru.com.br/ dist/*
 
 workflows:
   version: 2
