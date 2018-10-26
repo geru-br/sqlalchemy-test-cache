@@ -1,0 +1,45 @@
+version: 2
+jobs:
+
+  test:
+    docker:
+      - image: circleci/python:3.6
+    working_directory: ~/app
+    steps:
+      - checkout
+      - run:
+          name: install dependencies
+          command: |
+            make install
+
+      - run:
+          name: Run Tests
+          command: |
+            make test-all
+
+  deploy:
+    docker:
+      - image: circleci/python:3.6
+    working_directory: ~/app
+    steps:
+      - checkout
+      - run:
+          name: build and publish to geru-pypi
+          command: |
+            python setup.py sdist
+            virtualenv venv
+            ./venv/bin/pip install twine
+            ./venv/bin/twine upload --repository-url https://geru-pypi.geru.com.br/ dist/*
+
+workflows:
+  version: 2
+  test-and-deploy:
+    jobs:
+      - test
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - master
