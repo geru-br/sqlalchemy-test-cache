@@ -17,7 +17,7 @@ test_requirements = [
 ]
 
 setup(
-    name='sqlalchemy_test_cache',
+    name='sqlalchemy_test_cache_geru',
     version='0.1.0',
     description=("A tiny library to allow caching sql statements in order to "
                  "improve performance of expensive tests."),
